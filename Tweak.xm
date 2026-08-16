@@ -1,12 +1,47 @@
+%config(nonfragile-ivars);
+
 #import <SpringBoard/SpringBoard.h>
 #import <SpringBoardFoundation/SpringBoardFoundation.h>
 #import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
-%config(nonfragile-ivars);
+@interface AppIconCell : UICollectionViewCell
+@property (nonatomic, strong) LSApplicationProxy *app;
+@property (nonatomic, strong) UIImageView *iconView;
+@property (nonatomic, strong) UILabel *label;
+@end
 
-static UIViewController *appDrawerVC = nil;
-static BOOL isAppDrawerVisible = NO;
+@implementation AppIconCell
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.iconView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
+        self.iconView.layer.cornerRadius = 14;
+        self.iconView.clipsToBounds = YES;
+        self.iconView.contentMode = UIViewContentModeScaleAspectFit;
+        [self.contentView addSubview:self.iconView];
+        
+        self.label = [[UILabel alloc] initWithFrame:CGRectMake(0, 64, 60, 16)];
+        self.label.font = [UIFont systemFontOfSize:11 weight:UIFontWeightMedium];
+        self.label.textAlignment = NSTextAlignmentCenter;
+        self.label.textColor = [UIColor labelColor];
+        self.label.numberOfLines = 1;
+        self.label.adjustsFontSizeToFitWidth = YES;
+        self.label.minimumScaleFactor = 0.7;
+        [self.contentView addSubview:self.label];
+    }
+    return self;
+}
+
+- (void)setApp:(LSApplicationProxy *)app {
+    _app = app;
+    self.iconView.image = [app iconImageWithSize:CGSizeMake(60, 60)];
+    self.label.text = app.localizedName;
+}
+
+@end
 
 @interface AppDrawerViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, UISearchBarDelegate>
 @property (nonatomic, strong) UICollectionView *collectionView;
@@ -14,6 +49,8 @@ static BOOL isAppDrawerVisible = NO;
 @property (nonatomic, strong) NSArray *allApps;
 @property (nonatomic, strong) NSArray *filteredApps;
 @property (nonatomic, strong) UIView *backgroundView;
+@property (nonatomic, strong) UIView *drawerContainer;
+@property (nonatomic, assign) CGFloat drawerHeight;
 @property (nonatomic, assign) BOOL isSearching;
 @end
 
@@ -48,24 +85,25 @@ static BOOL isAppDrawerVisible = NO;
     CGFloat drawerHeight = self.view.bounds.size.height * 0.85;
     CGFloat drawerY = self.view.bounds.size.height;
     
-    UIView *drawerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, drawerY, self.view.bounds.size.width, drawerHeight)];
-    drawerContainer.backgroundColor = [UIColor systemBackgroundColor];
-    drawerContainer.layer.cornerRadius = 24;
-    drawerContainer.layer.maskedCorners = CACornerMaskLayerMinXMinYCorner | CACornerMaskLayerMaxXMinYCorner;
-    drawerContainer.layer.shadowColor = [UIColor blackColor].CGColor;
-    drawerContainer.layer.shadowOpacity = 0.3;
-    drawerContainer.layer.shadowRadius = 20;
-    drawerContainer.layer.shadowOffset = CGSizeMake(0, -5);
-    [self.view addSubview:drawerContainer];
+    self.drawerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, drawerY, self.view.bounds.size.width, drawerHeight)];
+    self.drawerContainer.backgroundColor = [UIColor systemBackgroundColor];
+    self.drawerContainer.layer.cornerRadius = 24;
+    self.drawerContainer.layer.maskedCorners = kCALayerMinXMinYCorner | kCALayerMaxXMinYCorner;
+    self.drawerContainer.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.drawerContainer.layer.shadowOpacity = 0.3;
+    self.drawerContainer.layer.shadowRadius = 20;
+    self.drawerContainer.layer.shadowOffset = CGSizeMake(0, -5);
+    [self.view addSubview:self.drawerContainer];
+    self.drawerHeight = drawerHeight;
     
-    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(16, 16, drawerContainer.bounds.size.width - 32, 44)];
+    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(16, 16, self.drawerContainer.bounds.size.width - 32, 44)];
     self.searchBar.delegate = self;
     self.searchBar.placeholder = @"Search apps...";
     self.searchBar.searchBarStyle = UISearchBarStyleMinimal;
     self.searchBar.backgroundColor = [UIColor secondarySystemBackgroundColor];
     self.searchBar.layer.cornerRadius = 12;
     self.searchBar.clipsToBounds = YES;
-    [drawerContainer addSubview:self.searchBar];
+    [self.drawerContainer addSubview:self.searchBar];
     
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.itemSize = CGSizeMake(60, 80);
@@ -74,17 +112,14 @@ static BOOL isAppDrawerVisible = NO;
     layout.sectionInset = UIEdgeInsetsMake(16, 20, 20, 20);
     layout.scrollDirection = UICollectionViewScrollDirectionVertical;
     
-    self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 70, drawerContainer.bounds.size.width, drawerContainer.bounds.size.height - 70) collectionViewLayout:layout];
+    self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 70, self.drawerContainer.bounds.size.width, self.drawerContainer.bounds.size.height - 70) collectionViewLayout:layout];
     self.collectionView.backgroundColor = [UIColor clearColor];
     self.collectionView.dataSource = self;
     self.collectionView.delegate = self;
     self.collectionView.alwaysBounceVertical = YES;
     self.collectionView.showsVerticalScrollIndicator = NO;
     [self.collectionView registerClass:[AppIconCell class] forCellWithReuseIdentifier:@"AppIconCell"];
-    [drawerContainer addSubview:self.collectionView];
-    
-    self.drawerContainer = drawerContainer;
-    self.drawerHeight = drawerHeight;
+    [self.drawerContainer addSubview:self.collectionView];
     
     [self performSelector:@selector(animateIn) withObject:nil afterDelay:0.01];
 }
@@ -101,10 +136,7 @@ static BOOL isAppDrawerVisible = NO;
         self.backgroundView.alpha = 0;
         self.drawerContainer.frame = CGRectMake(0, self.view.bounds.size.height, self.view.bounds.size.width, self.drawerHeight);
     } completion:^(BOOL finished) {
-        [self.view removeFromSuperview];
-        [self removeFromParent];
-        appDrawerVC = nil;
-        isAppDrawerVisible = NO;
+        [self dismissViewControllerAnimated:NO completion:nil];
     }];
     [self.searchBar resignFirstResponder];
 }
@@ -168,47 +200,8 @@ static BOOL isAppDrawerVisible = NO;
 
 @end
 
-@interface AppIconCell : UICollectionViewCell
-@property (nonatomic, strong) LSApplicationProxy *app;
-@property (nonatomic, strong) UIImageView *iconView;
-@property (nonatomic, strong) UILabel *label;
-@end
-
-@implementation AppIconCell
-
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
-    if (self) {
-        self.iconView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
-        self.iconView.layer.cornerRadius = 14;
-        self.iconView.clipsToBounds = YES;
-        self.iconView.contentMode = UIViewContentModeScaleAspectFit;
-        [self.contentView addSubview:self.iconView];
-        
-        self.label = [[UILabel alloc] initWithFrame:CGRectMake(0, 64, 60, 16)];
-        self.label.font = [UIFont systemFontOfSize:11 weight:UIFontWeightMedium];
-        self.label.textAlignment = NSTextAlignmentCenter;
-        self.label.textColor = [UIColor labelColor];
-        self.label.numberOfLines = 1;
-        self.label.adjustsFontSizeToFitWidth = YES;
-        self.label.minimumScaleFactor = 0.7;
-        [self.contentView addSubview:self.label];
-    }
-    return self;
-}
-
-- (void)setApp:(LSApplicationProxy *)app {
-    _app = app;
-    self.iconView.image = [app iconImageWithSize:CGSizeMake(60, 60)];
-    self.label.text = app.localizedName;
-}
-
-@end
-
-@interface AppDrawerViewController ()
-@property (nonatomic, strong) UIView *drawerContainer;
-@property (nonatomic, assign) CGFloat drawerHeight;
-@end
+static UIViewController *appDrawerVC = nil;
+static BOOL isAppDrawerVisible = NO;
 
 %hook SBDockView
 
