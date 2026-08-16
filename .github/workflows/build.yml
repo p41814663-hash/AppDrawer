@@ -8,14 +8,17 @@ jobs:
       - name: Install Theos
         run: |
           sudo apt-get update
-          sudo apt-get install -y git make clang lld dpkg wget perl
+          sudo apt-get install -y git make clang lld dpkg wget perl xz-utils
           git clone --recurse-submodules https://github.com/theos/theos.git ~/.theos
           chmod +x ~/.theos/bin/dm.pl
           echo "THEOS=~/.theos" >> $GITHUB_ENV
           echo "PATH=~/.theos/bin:$PATH" >> $GITHUB_ENV
+      - name: Install iOS SDK
+        run: |
+          ~/.theos/bin/install-sdk 17.0
       - name: Verify Theos
         run: |
-          ls -la ~/.theos/bin/dm.pl
+          ls -la ~/.theos/sdks/
           dm.pl --version
       - name: Build .deb
         run: |
