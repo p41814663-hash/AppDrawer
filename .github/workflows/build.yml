@@ -33,14 +33,6 @@ jobs:
           echo "=== Toolchain structure ==="
           find . -type f -name "clang" | head -5
           ls -la linux/iphone/bin/clang
-      - name: Check vendor headers
-        run: |
-          echo "=== vendor/include ==="
-          ls -la ~/.theos/vendor/include/
-          echo "=== vendor/include subdirs ==="
-          ls -la ~/.theos/vendor/include/*/ 2>/dev/null | head -30
-          echo "=== Searching for LSApplication ==="
-          find ~/.theos/vendor/include -name "*LSApplication*" -o -name "*SpringBoard*" 2>/dev/null | head -20
       - name: Build .deb
         run: |
           ls -la
@@ -51,7 +43,8 @@ jobs:
             TARGET=iphone:clang:16.5:15.0 \
             ARCHS=arm64 \
             DEBUG=0 \
-            ADDITIONAL_CFLAGS="-I$HOME/.theos/vendor/include"
+            ADDITIONAL_CFLAGS="-I$HOME/.theos/vendor/include" \
+            ADDITIONAL_LDFLAGS="-F$HOME/.theos/sdks/iPhoneOS16.5.sdk/System/Library/Frameworks"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
