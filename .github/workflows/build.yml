@@ -12,6 +12,7 @@ jobs:
           git clone --recurse-submodules https://github.com/theos/theos.git ~/.theos
           chmod +x ~/.theos/bin/dm.pl
           chmod +x ~/.theos/bin/logos.pl
+          chmod +x ~/.theos/vendor/logos/bin/logos.pl
           echo "THEOS=~/.theos" >> $GITHUB_ENV
           echo "PATH=~/.theos/bin:$PATH" >> $GITHUB_ENV
       - name: Install iOS SDK
@@ -37,7 +38,8 @@ jobs:
       - name: Verify logos.pl
         run: |
           ls -la ~/.theos/bin/logos.pl
-          head -5 ~/.theos/bin/logos.pl
+          ls -la ~/.theos/vendor/logos/bin/logos.pl
+          head -5 ~/.theos/vendor/logos/bin/logos.pl
       - name: Build .deb
         run: |
           ls -la
