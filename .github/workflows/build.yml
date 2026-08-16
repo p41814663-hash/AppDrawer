@@ -35,10 +35,10 @@ jobs:
           echo "=== Toolchain structure ==="
           find . -type f -name "clang" | head -5
           ls -la linux/iphone/bin/clang
-      - name: Check Theos makefiles
+      - name: Test logos.pl
         run: |
-          ls -la ~/.theos/makefiles/
-          grep -r "logos.pl" ~/.theos/makefiles/ | head -5
+          cd AppDrawer
+          ~/.theos/bin/logos.pl Tweak.xm 2>&1 | head -30
       - name: Build .deb
         run: |
           ls -la
