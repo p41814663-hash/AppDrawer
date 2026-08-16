@@ -16,6 +16,7 @@ jobs:
       - name: Install iOS SDK
         run: |
           ~/.theos/bin/install-sdk iPhoneOS16.5
+          ls -la ~/.theos/sdks/
       - name: Verify Theos
         run: |
           ls -la ~/.theos/sdks/
