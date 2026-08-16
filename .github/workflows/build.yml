@@ -1,3 +1,4 @@
+
 name: Build AppDrawer
 on: workflow_dispatch
 jobs:
@@ -47,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: appdrawer-deb
-          path: "**/*.deb"
+path: "**/*.deb"
