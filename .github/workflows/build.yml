@@ -21,23 +21,6 @@ jobs:
           tar -xf iPhoneOS16.5.sdk.tar.xz
           rm iPhoneOS16.5.sdk.tar.xz
           ls -la
-      - name: Build .deb
+      - name: Install toolchain
         run: |
-          ls -la
-          if [ -d "AppDrawer" ]; then
-            cd AppDrawer
-          fi
-          make package \
-            SDKROOT=~/.theos/sdks/iPhoneOS16.5.sdk \
-            CC=clang \
-            CXX=clang++ \
-            AR=llvm-ar \
-            LD=ld.lld \
-            TARGET=iphone:clang:16.5:15.0 \
-            ARCHS=arm64 \
-            DEBUG=0
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: appdrawer-deb
-          path: "**/*.deb"
+          ~/.theos/bin/install-toolchain
