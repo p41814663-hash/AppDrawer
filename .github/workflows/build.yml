@@ -1,3 +1,4 @@
+
 name: Build AppDrawer
 on: workflow_dispatch
 jobs:
@@ -33,6 +34,10 @@ jobs:
           echo "=== Toolchain structure ==="
           find . -type f -name "clang" | head -5
           ls -la linux/iphone/bin/clang
+      - name: Check vendor headers
+        run: |
+          ls -la ~/.theos/vendor/include/
+          find ~/.theos/vendor/include -name "LSApplication*" 2>/dev/null | head -10
       - name: Build .deb
         run: |
           ls -la
@@ -42,9 +47,10 @@ jobs:
           make package \
             TARGET=iphone:clang:16.5:15.0 \
             ARCHS=arm64 \
-            DEBUG=0
+            DEBUG=0 \
+            ADDITIONAL_CFLAGS="-I~/.theos/vendor/include -I~/.theos/vendor/include/SpringBoardFoundation"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: appdrawer-deb
-          path: "**/*.deb"
+path: "**/*.deb"
