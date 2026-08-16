@@ -9,8 +9,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y git make clang lld dpkg wget perl
-          git clone --depth=1 https://github.com/theos/theos.git ~/.theos
-          chmod +x ~/.theos/bin/dm.pl
+          git clone https://github.com/theos/theos.git ~/.theos
+          # dm.pl is in vendor/perl/ - ensure it's accessible
+          chmod +x ~/.theos/vendor/perl/dm.pl
+          ln -sf ~/.theos/vendor/perl/dm.pl ~/.theos/bin/dm.pl
           echo "THEOS=~/.theos" >> $GITHUB_ENV
           echo "PATH=~/.theos/bin:$PATH" >> $GITHUB_ENV
       - name: Verify Theos
