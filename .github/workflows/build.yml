@@ -15,10 +15,13 @@ jobs:
           echo "PATH=~/.theos/bin:$PATH" >> $GITHUB_ENV
       - name: Install iOS SDK
         run: |
+          set -x
           ~/.theos/bin/install-sdk iPhoneOS16.5
+          echo "=== SDK dir after install ==="
           ls -la ~/.theos/sdks/
       - name: Verify Theos
         run: |
+          echo "=== SDK dir ==="
           ls -la ~/.theos/sdks/
           dm.pl --version
       - name: Build .deb
