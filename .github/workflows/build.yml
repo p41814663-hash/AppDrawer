@@ -13,7 +13,7 @@ jobs:
           chmod +x ~/.theos/bin/dm.pl
           echo "THEOS=~/.theos" >> $GITHUB_ENV
           echo "PATH=~/.theos/bin:$PATH" >> $GITHUB_ENV
-      - name: Install iOS SDK (manual)
+      - name: Install iOS SDK
         run: |
           mkdir -p ~/.theos/sdks
           cd ~/.theos/sdks
@@ -21,18 +21,27 @@ jobs:
           tar -xf iPhoneOS16.5.sdk.tar.xz
           rm iPhoneOS16.5.sdk.tar.xz
           ls -la
-      - name: Verify Theos
-        run: |
-          ls -la ~/.theos/sdks/
-          dm.pl --version
       - name: Build .deb
         run: |
           ls -la
           if [ -d "AppDrawer" ]; then
             cd AppDrawer
           fi
-          make package
+          # Use system clang with SDK
+          export SDKROOT=~/.theos/sdks/iPhoneOS16.5.sdk
+          export CC=clang
+          export CXX=clang++
+          export AR=llvm-ar
+          export LD=ld.lld
+          make package \
+            TARGET=iphone:clang:16.5:15.0 \
+            ARCHS=arm64 \
+            DEBUG=0
       - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: appdrawer-deb
+          path: "**/*.deb"
         uses: actions/upload-artifact@v4
         with:
           name: appdrawer-deb
