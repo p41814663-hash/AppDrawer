@@ -1,0 +1,11 @@
+Package: com.thingsiwant.appdrawer
+Name: AppDrawer
+Version: 1.0.0
+Architecture: iphoneos-arm64
+Description: Adds a OneUI-style app drawer to iOS. Swipe up from the dock to reveal all apps in a scrollable grid with search.
+Maintainer: thingsiwant <contact@thingsiwant.com>
+Author: thingsiwant
+Section: Tweaks
+Depends: mobilesubstrate (>= 0.9.6000), firmware (>= 15.0)
+Homepage: https://thingsiwant.com/repo
+SileoDepiction: https://thingsiwant.com/repo/depiction/appdrawer.json

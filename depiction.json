@@ -1,0 +1,52 @@
+{
+  "class": "DepictionTabView",
+  "tabs": [
+    {
+      "tabname": "Details",
+      "class": "DepictionStackView",
+      "views": [
+        {
+          "class": "DepictionSubheaderView",
+          "title": "AppDrawer",
+          "subtitle": "OneUI-style app drawer for iOS"
+        },
+        {
+          "class": "DepictionMarkdownView",
+          "markdown": "Adds a Samsung OneUI-style app drawer to iOS. Swipe up from the dock or home screen to reveal all your apps in a clean, searchable grid.\n\n**Features:**\n- Swipe up from dock to open\n- Search apps in real-time\n- Clean grid layout with app icons and names\n- Smooth spring animations\n- Works on iOS 15.0+\n\n**Requirements:**\n- iOS 15.0 or later\n- Jailbroken device with Sileo/Zebra/Installer"
+        },
+        {
+          "class": "DepictionSeparatorView"
+        },
+        {
+          "class": "DepictionHeaderView",
+          "title": "Information"
+        },
+        {
+          "class": "DepictionTableTextView",
+          "title": "Version",
+          "text": "1.0.0"
+        },
+        {
+          "class": "DepictionTableTextView",
+          "title": "Author",
+          "text": "thingsiwant"
+        },
+        {
+          "class": "DepictionTableTextView",
+          "title": "Compatibility",
+          "text": "iOS 15.0 - 17.x"
+        }
+      ]
+    },
+    {
+      "tabname": "Changelog",
+      "class": "DepictionStackView",
+      "views": [
+        {
+          "class": "DepictionMarkdownView",
+          "markdown": "## 1.0.0\n- Initial release\n- OneUI-style app drawer\n- Real-time search\n- Spring animations\n- iOS 15+ support"
+        }
+      ]
+    }
+  ]
+}

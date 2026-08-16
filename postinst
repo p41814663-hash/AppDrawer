@@ -1,0 +1,6 @@
+#!/bin/bash
+# Post-install script
+
+killall -9 SpringBoard 2>/dev/null || true
+
+exit 0
