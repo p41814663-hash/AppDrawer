@@ -9,15 +9,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y git make clang lld dpkg wget perl
-          git clone https://github.com/theos/theos.git ~/.theos
-          # dm.pl is in theos root
-          chmod +x ~/.theos/dm.pl
-          ln -sf ~/.theos/dm.pl ~/.theos/bin/dm.pl
+          git clone --recurse-submodules https://github.com/theos/theos.git ~/.theos
+          chmod +x ~/.theos/bin/dm.pl
           echo "THEOS=~/.theos" >> $GITHUB_ENV
           echo "PATH=~/.theos/bin:$PATH" >> $GITHUB_ENV
       - name: Verify Theos
         run: |
-          ls -la ~/.theos/dm.pl ~/.theos/bin/dm.pl
+          ls -la ~/.theos/bin/dm.pl
           dm.pl --version
       - name: Build .deb
         run: |
