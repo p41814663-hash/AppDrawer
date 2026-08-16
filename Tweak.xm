@@ -1,3 +1,4 @@
+
 %config(nonfragile-ivars);
 
 #import <SpringBoard/SpringBoard.h>
@@ -152,7 +153,7 @@
         [apps addObject:app];
     }
     
-    [apps sortUsingComparator:^NSComparisonResult(LSApplicationProxy *a, LSApplicationProxy *b) {
+    [apps sortUsingComparator:^NSComparisonResult(id a, id b) {
         return [a.localizedName localizedCaseInsensitiveCompare:b.localizedName];
     }];
     
@@ -184,86 +185,4 @@
 
 #pragma mark - UISearchBarDelegate
 
-- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
-    if (searchText.length == 0) {
-        self.filteredApps = self.allApps;
-    } else {
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"localizedName CONTAINS[cd] %@", searchText];
-        self.filteredApps = [self.allApps filteredArrayUsingPredicate:predicate];
-    }
-    [self.collectionView reloadData];
-}
-
-- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
-    [searchBar resignFirstResponder];
-}
-
-@end
-
-static UIViewController *appDrawerVC = nil;
-static BOOL isAppDrawerVisible = NO;
-
-%hook SBDockView
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    UITouch *touch = [touches anyObject];
-    CGPoint location = [touch locationInView:self];
-    
-    if (location.y < -50 && !isAppDrawerVisible) {
-        [self showAppDrawer];
-        return;
-    }
-    
-    %orig(touches, event);
-}
-
-- (void)showAppDrawer {
-    if (isAppDrawerVisible) return;
-    
-    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-    if (!keyWindow) return;
-    
-    AppDrawerViewController *drawer = [[AppDrawerViewController alloc] init];
-    drawer.view.frame = keyWindow.bounds;
-    drawer.modalPresentationStyle = UIModalPresentationOverFullScreen;
-    
-    UIViewController *rootVC = keyWindow.rootViewController;
-    while (rootVC.presentedViewController) {
-        rootVC = rootVC.presentedViewController;
-    }
-    
-    [rootVC presentViewController:drawer animated:NO completion:nil];
-    appDrawerVC = drawer;
-    isAppDrawerVisible = YES;
-}
-
-%end
-
-%hook SBHomeScreenViewController
-
-- (void)viewDidAppear:(BOOL)animated {
-    %orig(animated);
-    
-    UISwipeGestureRecognizer *swipeUp = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeUp:)];
-    swipeUp.direction = UISwipeGestureRecognizerDirectionUp;
-    swipeUp.delegate = self;
-    [self.view addGestureRecognizer:swipeUp];
-}
-
-- (void)handleSwipeUp:(UISwipeGestureRecognizer *)gesture {
-    if (gesture.state == UIGestureRecognizerStateRecognized && !isAppDrawerVisible) {
-        CGPoint location = [gesture locationInView:self.view];
-        if (location.y > self.view.bounds.size.height * 0.7) {
-            SBDockView *dock = nil;
-            for (UIView *subview in self.view.subviews) {
-                if ([NSStringFromClass([subview class]) containsString:@"Dock"]) {
-                    dock = (SBDockView *)subview;
-                    break;
-                }
-            }
-            if (dock) [dock showAppDrawer];
-        }
-    }
-}
-
-%end
+- (void)
