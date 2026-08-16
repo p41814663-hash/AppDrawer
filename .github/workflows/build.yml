@@ -27,13 +27,12 @@ jobs:
           if [ -d "AppDrawer" ]; then
             cd AppDrawer
           fi
-          # Use system clang with SDK
-          export SDKROOT=~/.theos/sdks/iPhoneOS16.5.sdk
-          export CC=clang
-          export CXX=clang++
-          export AR=llvm-ar
-          export LD=ld.lld
           make package \
+            SDKROOT=~/.theos/sdks/iPhoneOS16.5.sdk \
+            CC=clang \
+            CXX=clang++ \
+            AR=llvm-ar \
+            LD=ld.lld \
             TARGET=iphone:clang:16.5:15.0 \
             ARCHS=arm64 \
             DEBUG=0
